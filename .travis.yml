@@ -18,12 +18,12 @@ matrix:
       deploy:
         provider: releases
         api_key:
-          secure: BNMTgPAb7mywkv/LH+SyXApneR/YGIUVmLlmddNVS82BuE/+zuPAyHziiBtsDJRrYjqRVkBXYQ566q83WiAKILIrKVOgNrp+5nTkMEAZREPTUFG7IO63M0nthrPXrgR5QTc1iPF+XNWjE+inuBSZjFvBxaj461eth0XvY0Cu7eKxd3g3xdNA0ejmiLNDxr7SegCsjsuxbeVC8EcNzlYQiWq0jKX9WgBYdAB6XT6toNJ5OonRS7T5XxnjvF0NtBerysKTYd14aAoGTXXoLU4nXesF7YRaxBo6FAzBaKQnLX3OPMRAVCaGEcGWUtEJcb9qv05AtTKuUzrXpRYEvsGO8dPdl/oAiniOncZkzTrjlIF1u7WDMN+MB603hTIti0k9R/RtQPQEEyNg8Et0O7qS5uGOWbdCeSppOuw5PzD4JtCOvZweO0D5RVrRe5f2xRVncoiF5jZJ55RPavbGcug5JqtR+MjVVnQJSx69i5AX3pLw08jXM7cpgitCKo9sk0YVwUSltmoVQ9TNu2hTRkcq46Dy4TNtZYc9HriJPRdQSg11juetOzpXduSPOJpehTlv4fgXBXGz1DwQTApMv46khlbWKrNxtYXNH0eXHzVQNzpgwiz5BNv8tCZRqeqmpvX69z3AWaRsmESQTWxV7eoTuKwZjnWa+SJmvXRTULr289s=
+          secure: CJw/loFdyWhCo+oEVhFdERH0PJTKbOkxYqgStJ0VQnNKMUl3+EZkCbEjggxV7vM6C+IMxVUIX/HPV36LLdKE0LLjRYpC//UzZ5fScNVxUZXKi66m7DZjFx59FwCkcP/RrHfJnVGDjwg92k+RT2PDRcZbk7LvDAdrxi7qQTgqXXxPkNDbZ/9R0jUWg+N0s0XEas0MO4dQGsq9nIWp/djMjuGTOhtIkqD2jiP0i/JQgsXyJdFuNZTuBUl1t5NFPVO5hfR9eF/2NWKUgnadpilRTmJ8zN5joNFZYroZWUSxvy849cy0x+H1fvk6x8LmjS8Ew5gipZ73PIOfgq3QM+WNysW345qphiMKFI6NwDTz6JgxvooDVDrMwV5cc7qracqjKnjjtkkrJ/zNHh0SCiO1gFHOe9aBo+7QTKVpgTJM4Qn4B6tMpwKtUfeKRhIUBjBlvTXgifJTzI86eSz+BdfGaVFGqz1KGWRGijw93YGEl3KMEMf5FZhnvfpSi+6FyELE2+Ca9fW9XmN0S5zPojMQGQ+HSjrmq5xPAPopvuO7OR9XdXoaoQGIC20vzMPb/0VE/rC8hrA8ZyylTnv7u51/SN2p2HXysoIyOBjfNuDnjEUVPm2uPmvX/76XqRTA9Uxj4PFuXZO0/Rt8UvgdQE4Cvu7AE+fJMRgH6miBRFZ2i60=
         file: "$TRAVIS_BRANCH-$TRAVIS_OS_NAME-v$TRAVIS_BUILD_NUMBER.zip"
         skip_cleanup: true
         on:
-          branch: master
-          repo: Vita3K/Vita3K
+          branch: format
+          repo: pent0/Vita3K
       script: bash $TRAVIS_BUILD_DIR/.travis/macos/build.sh
     - os: linux
       sudo: required
@@ -37,12 +37,12 @@ matrix:
       deploy:
         provider: releases
         api_key:
-          secure: BNMTgPAb7mywkv/LH+SyXApneR/YGIUVmLlmddNVS82BuE/+zuPAyHziiBtsDJRrYjqRVkBXYQ566q83WiAKILIrKVOgNrp+5nTkMEAZREPTUFG7IO63M0nthrPXrgR5QTc1iPF+XNWjE+inuBSZjFvBxaj461eth0XvY0Cu7eKxd3g3xdNA0ejmiLNDxr7SegCsjsuxbeVC8EcNzlYQiWq0jKX9WgBYdAB6XT6toNJ5OonRS7T5XxnjvF0NtBerysKTYd14aAoGTXXoLU4nXesF7YRaxBo6FAzBaKQnLX3OPMRAVCaGEcGWUtEJcb9qv05AtTKuUzrXpRYEvsGO8dPdl/oAiniOncZkzTrjlIF1u7WDMN+MB603hTIti0k9R/RtQPQEEyNg8Et0O7qS5uGOWbdCeSppOuw5PzD4JtCOvZweO0D5RVrRe5f2xRVncoiF5jZJ55RPavbGcug5JqtR+MjVVnQJSx69i5AX3pLw08jXM7cpgitCKo9sk0YVwUSltmoVQ9TNu2hTRkcq46Dy4TNtZYc9HriJPRdQSg11juetOzpXduSPOJpehTlv4fgXBXGz1DwQTApMv46khlbWKrNxtYXNH0eXHzVQNzpgwiz5BNv8tCZRqeqmpvX69z3AWaRsmESQTWxV7eoTuKwZjnWa+SJmvXRTULr289s=
+          secure: CJw/loFdyWhCo+oEVhFdERH0PJTKbOkxYqgStJ0VQnNKMUl3+EZkCbEjggxV7vM6C+IMxVUIX/HPV36LLdKE0LLjRYpC//UzZ5fScNVxUZXKi66m7DZjFx59FwCkcP/RrHfJnVGDjwg92k+RT2PDRcZbk7LvDAdrxi7qQTgqXXxPkNDbZ/9R0jUWg+N0s0XEas0MO4dQGsq9nIWp/djMjuGTOhtIkqD2jiP0i/JQgsXyJdFuNZTuBUl1t5NFPVO5hfR9eF/2NWKUgnadpilRTmJ8zN5joNFZYroZWUSxvy849cy0x+H1fvk6x8LmjS8Ew5gipZ73PIOfgq3QM+WNysW345qphiMKFI6NwDTz6JgxvooDVDrMwV5cc7qracqjKnjjtkkrJ/zNHh0SCiO1gFHOe9aBo+7QTKVpgTJM4Qn4B6tMpwKtUfeKRhIUBjBlvTXgifJTzI86eSz+BdfGaVFGqz1KGWRGijw93YGEl3KMEMf5FZhnvfpSi+6FyELE2+Ca9fW9XmN0S5zPojMQGQ+HSjrmq5xPAPopvuO7OR9XdXoaoQGIC20vzMPb/0VE/rC8hrA8ZyylTnv7u51/SN2p2HXysoIyOBjfNuDnjEUVPm2uPmvX/76XqRTA9Uxj4PFuXZO0/Rt8UvgdQE4Cvu7AE+fJMRgH6miBRFZ2i60=       
         file: "$TRAVIS_BRANCH-$TRAVIS_OS_NAME-v$TRAVIS_BUILD_NUMBER.zip"
         skip_cleanup: true
         on:
-          branch: master
-          repo: Vita3K/Vita3K
+          branch: format
+          repo: pent0/Vita3K
 
 branches:
   except:
