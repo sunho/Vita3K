@@ -355,8 +355,10 @@ static ExitCode load_app_impl(Ptr<const void> &entry_point, HostState &host, con
         pre_load_module(host, lib_load_list, VitaIoDevice::app0);
     }
 
-    // Load pre-loaded font fw libraries
+    // Load pre-loaded libraries
     std::vector<std::string> lib_load_list = {
+        "us/libkernel.suprx",
+        "us/driver_us.suprx",
         "sys/external/libSceFt2.suprx",
         "sys/external/libpvf.suprx",
     };
