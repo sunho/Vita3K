@@ -85,8 +85,13 @@ EXPORT(int, _sceKernelCreateMsgPipeWithLR) {
     return UNIMPLEMENTED();
 }
 
-EXPORT(int, _sceKernelCreateMutex) {
-    return UNIMPLEMENTED();
+EXPORT(int, _sceKernelCreateMutex, const char *name, SceUInt attr, int init_count, SceKernelMutexOptParam *opt_param) {
+    SceUID uid;
+
+    if (auto error = mutex_create(&uid, host.kernel, export_name, name, thread_id, attr, init_count, SyncWeight::Heavy)) {
+        return error;
+    }
+    return uid;
 }
 
 EXPORT(int, _sceKernelCreateRWLock) {
