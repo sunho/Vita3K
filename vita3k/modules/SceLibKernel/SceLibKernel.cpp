@@ -1264,13 +1264,13 @@ EXPORT(int, sceKernelLoadModule, char *path, int flags, SceKernelLMOption *optio
     return mod_id;
 }
 
-EXPORT(int, sceKernelLoadStartModule, char *path, SceSize args, Ptr<void> argp, int flags, SceKernelLMOption *option, int *status) {
+EXPORT(SceUID, sceKernelLoadStartModule, const char *moduleFileName, SceSize args, const Ptr<void> argp, SceUInt32 flags, const SceKernelLMOption *pOpt, int *pRes) {
     SceUID mod_id;
     Ptr<const void> entry_point;
     SceKernelModuleInfoPtr module;
 
     int error_val;
-    if (!load_module(mod_id, entry_point, module, host, export_name, path, error_val))
+    if (!load_module(mod_id, entry_point, module, host, export_name, moduleFileName, error_val))
         return error_val;
 
     auto inject = create_cpu_dep_inject(host);
@@ -1280,12 +1280,11 @@ EXPORT(int, sceKernelLoadStartModule, char *path, SceSize args, Ptr<void> argp, 
     const ThreadStatePtr thread = lock_and_find(thid, host.kernel.threads, host.kernel.mutex);
 
     uint32_t result = run_on_current(*thread, entry_point, args, argp);
-    char *module_name = module->module_name;
 
-    LOG_INFO("Module {} (at \"{}\") module_start returned {}", module_name, module->path, log_hex(result));
+    LOG_INFO("Module {} (at \"{}\") module_start returned {}", module->module_name, module->path, log_hex(result));
 
-    if (status)
-        *status = result;
+    if (pRes)
+        *pRes = result;
 
     thread->to_do = ThreadToDo::exit;
     thread->something_to_do.notify_all(); // TODO Should this be notify_one()?
