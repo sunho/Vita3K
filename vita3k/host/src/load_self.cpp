@@ -151,6 +151,19 @@ static bool load_func_imports(const uint32_t *nids, const Ptr<uint32_t> *entries
             LOG_DEBUG("\tNID {} ({}) at {}", log_hex(nid), name, log_hex(entry.address()));
         }
 
+        const std::unordered_set<uint32_t> lle_nid_blacklist = {
+            0x46E7BE7B, // sceKernelLockLwMutex
+            0x91FA6614, // sceKernelUnlockLwMutex
+            0x1B58FA3B, //strcmp
+            0x6DC1F0D8, //memset
+            0x7205BFDB, //memcpy
+            0x8AECC873, //strlen
+            0x85B924B7, //strcpy
+            0x775A0CB2, //malloc
+            0x5B9BB802, //free
+            0x6BBFEC89, //ceilf
+            0x7747F6D7, //memcmp
+        };
         const ExportNids::iterator export_address = kernel.export_nids.find(nid);
         uint32_t *const stub = entry.get(mem);
         switch (IMPORT_CALL_LOG_LEVEL) {
@@ -261,11 +274,15 @@ static bool load_func_exports(Ptr<const void> &entry_point, const uint32_t *nids
         if (nid == NID_MODULE_STOP || nid == NID_MODULE_EXIT)
             continue;
 
-        kernel.export_nids.emplace(nid, entry.address());
-        kernel.nid_from_export.emplace(entry.address(), nid);
+        const char *const name = import_name(nid);
 
+        if (strstr(name, "LwMutex") == NULL && strstr(name, "sceKernelGetProcessTime") == NULL) {
+            kernel.export_nids.emplace(nid, entry.address());
+            kernel.nid_from_export.emplace(entry.address(), nid);
+        } else {
+            LOG_DEBUG("\tNID {} ({}) at {}", log_hex(nid), name, log_hex(entry.address()));
+        }
         if (cfg.log_exports) {
-            const char *const name = import_name(nid);
 
             LOG_DEBUG("\tNID {} ({}) at {}", log_hex(nid), name, log_hex(entry.address()));
         }
