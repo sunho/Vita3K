@@ -532,7 +532,10 @@ struct SceKernelLMOption {
 
 // We only use workarea for uid
 struct SceKernelLwMutexWork {
-    std::uint32_t unknown0[4];
+    std::uint32_t owner;
+    std::uint32_t unknown0;
+    std::uint32_t lockCount;
+    std::uint32_t attr;
     SceUID uid;
     std::uint32_t unknown1[3];
 };
@@ -577,7 +580,7 @@ struct SceKernelThreadInfo {
     /** Thread entry point */
     SceKernelThreadEntry entry;
     /** Thread stack pointer */
-    void *stack;
+    Ptr<void> stack;
     /** Thread stack size */
     int stackSize;
     /** Initial priority */

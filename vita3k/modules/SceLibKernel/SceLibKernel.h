@@ -19,9 +19,6 @@
 
 #include <module/module.h>
 
-#include <../SceIofilemgr/SceIofilemgr.h>
-#include <../SceKernelThreadMgr/SceThreadmgr.h>
-
 BRIDGE_DECL(SceKernelStackChkGuard)
 BRIDGE_DECL(__sce_aeabi_idiv0)
 BRIDGE_DECL(__sce_aeabi_ldiv0)

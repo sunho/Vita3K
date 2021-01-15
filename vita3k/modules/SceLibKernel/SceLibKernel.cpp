@@ -17,6 +17,11 @@
 
 #include "SceLibKernel.h"
 #include <modules/module_parent.h>
+
+#include <../SceIofilemgr/SceIofilemgr.h>
+#include <../SceKernelThreadMgr/SceThreadmgr.h>
+#include <../SceKernelModulemgr/SceModulemgr.h>
+
 #include <v3kprintf.h>
 
 #include <cpu/functions.h>
@@ -897,7 +902,7 @@ EXPORT(int, sceKernelCreateMsgPipeWithLR) {
 EXPORT(int, sceKernelCreateMutex, const char *name, SceUInt attr, int init_count, SceKernelMutexOptParam *opt_param) {
     SceUID uid;
 
-    if (auto error = mutex_create(&uid, host.kernel, export_name, name, thread_id, attr, init_count, SyncWeight::Heavy)) {
+    if (auto error = mutex_create(&uid, host.kernel, host.mem, export_name, name, thread_id, attr, init_count, Ptr<SceKernelLwMutexWork>(0), SyncWeight::Heavy)) {
         return error;
     }
     return uid;
@@ -1144,7 +1149,7 @@ EXPORT(int, sceKernelGetThreadInfo, SceUID thid, SceKernelThreadInfo *info) {
     const ThreadStatePtr thread = lock_and_find(thid ? thid : thread_id, host.kernel.threads, host.kernel.mutex);
 
     strncpy(info->name, thread->name.c_str(), 0x1f);
-    info->stack = reinterpret_cast<void *>(thread->stack.get()->get());
+    info->stack = Ptr<void>(thread->stack->get());
     info->stackSize = thread->stack_size;
     info->initPriority = thread->priority;
     info->currentPriority = thread->priority;
@@ -1265,33 +1270,7 @@ EXPORT(int, sceKernelLoadModule, char *path, int flags, SceKernelLMOption *optio
 }
 
 EXPORT(SceUID, sceKernelLoadStartModule, const char *moduleFileName, SceSize args, const Ptr<void> argp, SceUInt32 flags, const SceKernelLMOption *pOpt, int *pRes) {
-    SceUID mod_id;
-    Ptr<const void> entry_point;
-    SceKernelModuleInfoPtr module;
-
-    int error_val;
-    if (!load_module(mod_id, entry_point, module, host, export_name, moduleFileName, error_val))
-        return error_val;
-
-    auto inject = create_cpu_dep_inject(host);
-    const SceUID thid = create_thread(entry_point.cast<const void>(), host.kernel, host.mem, module->module_name, SCE_KERNEL_DEFAULT_PRIORITY_USER,
-        static_cast<int>(SCE_KERNEL_STACK_SIZE_USER_DEFAULT), inject, nullptr);
-
-    const ThreadStatePtr thread = lock_and_find(thid, host.kernel.threads, host.kernel.mutex);
-
-    uint32_t result = run_on_current(*thread, entry_point, args, argp);
-
-    LOG_INFO("Module {} (at \"{}\") module_start returned {}", module->module_name, module->path, log_hex(result));
-
-    if (pRes)
-        *pRes = result;
-
-    thread->to_do = ThreadToDo::exit;
-    thread->something_to_do.notify_all(); // TODO Should this be notify_one()?
-    host.kernel.running_threads.erase(thid);
-    host.kernel.threads.erase(thid);
-
-    return mod_id;
+    return CALL_EXPORT(_sceKernelLoadStartModule, moduleFileName, args, argp, flags, pOpt, pRes);
 }
 
 EXPORT(int, sceKernelLockLwMutex, Ptr<SceKernelLwMutexWork> workarea, int lock_count, unsigned int *ptimeout) {
@@ -1455,7 +1434,7 @@ EXPORT(int, sceKernelStopUnloadModule) {
 
 EXPORT(int, sceKernelTryLockLwMutex, Ptr<SceKernelLwMutexWork> workarea, int lock_count) {
     const auto lwmutexid = workarea.get(host.mem)->uid;
-    return mutex_try_lock(host.kernel, export_name, thread_id, lwmutexid, lock_count, SyncWeight::Light);
+    return mutex_try_lock(host.kernel, host.mem, export_name, thread_id, lwmutexid, lock_count, SyncWeight::Light);
 }
 
 EXPORT(int, sceKernelTryReceiveMsgPipe) {
@@ -1489,12 +1468,12 @@ EXPORT(int, sceKernelUnlockLwMutex2, Ptr<SceKernelLwMutexWork> workarea, int unl
 }
 
 EXPORT(int, sceKernelWaitCond, SceUID cond_id, SceUInt32 *timeout) {
-    return condvar_wait(host.kernel, export_name, thread_id, cond_id, timeout, SyncWeight::Heavy);
+    return condvar_wait(host.kernel, host.mem, export_name, thread_id, cond_id, timeout, SyncWeight::Heavy);
 }
 
 EXPORT(int, sceKernelWaitCondCB, SceUID cond_id, SceUInt32 *timeout) {
     STUBBED("no CB");
-    return condvar_wait(host.kernel, export_name, thread_id, cond_id, timeout, SyncWeight::Heavy);
+    return condvar_wait(host.kernel, host.mem, export_name, thread_id, cond_id, timeout, SyncWeight::Heavy);
 }
 
 EXPORT(int, sceKernelWaitEvent) {
@@ -1524,13 +1503,13 @@ EXPORT(int, sceKernelWaitExceptionCB) {
 
 EXPORT(int, sceKernelWaitLwCond, Ptr<SceKernelLwCondWork> workarea, SceUInt32 *timeout) {
     const auto cond_id = workarea.get(host.mem)->uid;
-    return condvar_wait(host.kernel, export_name, thread_id, cond_id, timeout, SyncWeight::Light);
+    return condvar_wait(host.kernel, host.mem, export_name, thread_id, cond_id, timeout, SyncWeight::Light);
 }
 
 EXPORT(int, sceKernelWaitLwCondCB, Ptr<SceKernelLwCondWork> workarea, SceUInt32 *timeout) {
     STUBBED("no CB");
     const auto cond_id = workarea.get(host.mem)->uid;
-    return condvar_wait(host.kernel, export_name, thread_id, cond_id, timeout, SyncWeight::Light);
+    return condvar_wait(host.kernel, host.mem, export_name, thread_id, cond_id, timeout, SyncWeight::Light);
 }
 
 EXPORT(int, sceKernelWaitMultipleEvents) {
