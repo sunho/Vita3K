@@ -44,18 +44,17 @@ void CorenumAllocator::set_max_core_count(const std::size_t max) {
     alloc.set_maximum(max);
 }
 
-bool init(KernelState &kernel, MemState &mem, int cpu_pool_size, CPUProtocolBase *cpu_protocol, CPUBackend cpu_backend) {
-    static constexpr std::size_t MAX_CORE_COUNT = 150;
+bool init(KernelState &kernel, MemState &mem, int cpu_pool_size, CallImportFunc call_import, CPUBackend cpu_backend) {
+    constexpr std::size_t MAX_CORE_COUNT = 150;
 
     kernel.corenum_allocator.set_max_core_count(MAX_CORE_COUNT);
-
     kernel.exclusive_monitor = new_exclusive_monitor(MAX_CORE_COUNT);
     kernel.start_tick = { rtc_base_ticks() };
     kernel.base_tick = { rtc_base_ticks() };
-    kernel.cpu_protocol = cpu_protocol;
+    kernel.cpu_protocol = std::make_unique<CPUProtocol>(kernel, mem, call_import);
 
     for (int i = 0; i < cpu_pool_size; ++i) {
-        auto item = init_cpu(cpu_backend, 0, static_cast<std::size_t>(kernel.corenum_allocator.new_corenum()), 0, 0, mem, cpu_protocol);
+        auto item = init_cpu(cpu_backend, 0, static_cast<std::size_t>(kernel.corenum_allocator.new_corenum()), 0, 0, mem, kernel.cpu_protocol.get());
         kernel.cpu_pool.add(std::move(item));
     }
 
