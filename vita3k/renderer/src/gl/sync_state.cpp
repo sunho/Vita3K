@@ -308,7 +308,20 @@ void sync_texture(GLContext &context, MemState &mem, std::size_t index, SceGxmTe
     glActiveTexture(static_cast<GLenum>(static_cast<std::size_t>(GL_TEXTURE0) + index));
 
     if (config.texture_cache) {
-        renderer::texture::cache_and_bind_texture(context.texture_cache, texture, mem);
+        static std::mutex mu;
+        static std::map<Address, GLuint> surface_texture;
+        const auto lock = std::lock_guard(mu);
+        surface_texture[context.record.color_surface.data.address()] = context.render_target->color_attachment[0];
+        const auto it = surface_texture.find(texture.data_addr << 2);
+       
+        if (it != surface_texture.end()) {
+            texture::configure_bound_texture(texture);
+            glBindTexture(GL_TEXTURE_2D, it->second);
+
+        } else {
+            renderer::texture::cache_and_bind_texture(context.texture_cache, texture, mem);
+        }
+        
     } else {
         texture::bind_texture(context.texture_cache, texture, mem);
     }

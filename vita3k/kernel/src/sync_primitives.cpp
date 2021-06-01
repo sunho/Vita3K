@@ -87,7 +87,7 @@ inline int handle_timeout(const ThreadStatePtr &thread, std::unique_lock<std::mu
             *timeout = 0; // Time run out, so remaining time is 0
 
             thread->status = ThreadStatus::run;
-
+            thread_lock.unlock();
             primitive_lock.lock();
             queue->erase(data);
 

@@ -151,7 +151,8 @@ public:
     void erase(const T &val) override {
         // TODO better search algo
         auto it = std::find(c.begin(), c.end(), val);
-        c.erase(it);
+        if (it != c.end())
+            c.erase(it);
     }
 
     void push(const T &val) override {

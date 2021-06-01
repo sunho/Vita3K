@@ -207,6 +207,10 @@ void upload_bound_texture(const SceGxmTexture &gxm_texture, const MemState &mem)
     const bool is_swizzled = (texture_type == SCE_GXM_TEXTURE_SWIZZLED) || (texture_type == SCE_GXM_TEXTURE_CUBE) || (texture_type == SCE_GXM_TEXTURE_SWIZZLED_ARBITRARY) || (texture_type == SCE_GXM_TEXTURE_CUBE_ARBITRARY);
     const bool need_decompress_and_unswizzle_on_cpu = is_swizzled && !can_texture_be_unswizzled_without_decode(base_format);
 
+
+        LOG_INFO("Decompressing 0x{:x}", gxm_texture.data_addr << 2);
+
+
     uint32_t mip_index = 0;
     uint32_t total_mip = gxm_texture.mip_count;
     size_t source_size = 0;

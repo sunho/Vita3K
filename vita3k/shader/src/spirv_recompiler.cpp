@@ -1081,7 +1081,7 @@ static spv::Function *make_frag_finalize_function(spv::Builder &b, const SpirvSh
         b.addDecoration(out, spv::DecorationLocation, 0);
         b.createStore(color, out);
     }
-
+    /*
     // Discard masked fragments
     spv::Id current_coord = translate_state.frag_coord_id;
     spv::Id i32 = b.makeIntegerType(32, true);
@@ -1097,6 +1097,7 @@ static spv::Function *make_frag_finalize_function(spv::Builder &b, const SpirvSh
     spv::Builder::If cond_builder(pred2, spv::SelectionControlMaskNone, b);
     b.makeDiscard();
     cond_builder.makeEndIf();
+    */
 
     b.makeReturn(false);
     b.setBuildPoint(last_build_point);
@@ -1363,7 +1364,7 @@ static SpirvCode convert_gxp_to_spirv_impl(const SceGxmProgram &program, const s
 
     if (!translation_state.is_maskupdate) {
         if (program.is_fragment()) {
-            begin_hook_func = make_frag_initialize_function(b, translation_state);
+          //  begin_hook_func = make_frag_initialize_function(b, translation_state);
             end_hook_func = make_frag_finalize_function(b, parameters, program, utils, features, translation_state);
         } else {
             end_hook_func = make_vert_finalize_function(b, parameters, program, utils, features, translation_state);
@@ -1374,7 +1375,7 @@ static SpirvCode convert_gxp_to_spirv_impl(const SceGxmProgram &program, const s
                 var_to_reg.offset, spv::NoResult, var_to_reg.size, var_to_reg.var, var_to_reg.dtype);
         }
 
-        // Initialize vertex output to 0
+      /*  // Initialize vertex output to 0
         if (program.is_vertex()) {
             spv::Id i32_type = b.makeIntType(32);
             spv::Id ite = b.createVariable(spv::StorageClassFunction, i32_type, "i");
@@ -1386,7 +1387,7 @@ static SpirvCode convert_gxp_to_spirv_impl(const SceGxmProgram &program, const s
                 spv::Id dest = b.createAccessChain(spv::StorageClassPrivate, parameters.outs, { b.createLoad(ite) });
                 b.createStore(rezero_v, dest);
             });
-        }
+        }*/
 
         generate_shader_body(b, parameters, program, features, utils, begin_hook_func, end_hook_func, texture_queries);
     } else {
@@ -1563,7 +1564,7 @@ static std::string convert_spirv_to_glsl(const std::string &shader_name, SpirvCo
         glsl.set_name(translation_state.frag_coord_id, "gl_FragCoord");
     }
     if (features.support_shader_interlock) {
-        if (translation_state.is_fragment && is_native_color) {
+        if (translation_state.is_fragment) {
             glsl.add_header_line("layout(early_fragment_tests) in;\n");
         }
         glsl.require_extension("GL_ARB_fragment_shader_interlock");

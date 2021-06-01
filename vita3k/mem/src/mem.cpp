@@ -37,7 +37,7 @@
 
 constexpr size_t STANDARD_PAGE_SIZE = 4096;
 constexpr size_t TOTAL_MEM_SIZE = GB(4);
-constexpr bool LOG_PROTECT = false;
+constexpr bool LOG_PROTECT = true;
 constexpr bool PAGE_NAME_TRACKING = false;
 
 //TODO: support multiple handlers
@@ -215,6 +215,9 @@ static void unprotect_inner(MemState &state, Address addr, size_t size) {
 }
 
 static void protect_inner(MemState &state, Address addr, size_t size) {
+    if (LOG_PROTECT) {
+        fmt::print("Protect: {} {}\n", log_hex(addr), size);
+    }
 #ifdef WIN32
     DWORD old_protect = 0;
     const BOOL ret = VirtualProtect(&state.memory[addr], size - 1, PAGE_READONLY, &old_protect);
@@ -264,12 +267,12 @@ bool handle_access_violation(MemState &state, uint8_t *addr, bool write) noexcep
         LOG_CRITICAL("Unhandled write protected region was valid.");
         return true;
     }
-
-    for (const auto cb : it->callbacks) {
+    unprotect_inner(state, it->addr, it->size);
+    const auto cbs = it->callbacks;
+    state.write_protect_tree.erase(it);
+    for (const auto cb : cbs) {
         cb();
     }
-    unprotect_inner(state, it->addr, it->size);
-    state.write_protect_tree.erase(it);
     return true;
 }
 
@@ -277,6 +280,8 @@ bool add_write_protect(MemState &state, Address addr, const size_t size, WritePr
     const std::lock_guard<std::mutex> lock(state.protect_mutex);
     WriteProtect protect(addr, size, callback);
     align_to_page(state, protect);
+    protect.addr += state.page_size;
+    protect.size -= state.page_size*2;
 
     auto it = find_write_protect(state.write_protect_tree, protect.addr);
     while (it != state.write_protect_tree.end() && overlap_in_page(state, *it, protect)) {
