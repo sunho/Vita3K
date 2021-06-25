@@ -17,6 +17,7 @@ typedef void (*HookFunc)(HookContext *ctx);
 }
 
  extern "C" EXPORTDLL void add_trampoline(uint32_t addr, bool thumb, HookFunc on_enter) {
+    current_host->kernel.debugger.remove_trampoline(current_host->mem, addr);
     current_host->kernel.debugger.add_trampoile(current_host->mem, addr, thumb, [=](CPUState &cpu, MemState &mem, Address lr) {
         HookContext ctx;
         CPUContext cpu_ctx = save_context(cpu);
@@ -27,6 +28,11 @@ typedef void (*HookFunc)(HookContext *ctx);
         return true;
     });
 }
+
+ extern "C" EXPORTDLL void remove_trampoline(uint32_t addr) {
+    current_host->kernel.debugger.remove_trampoline(current_host->mem, addr);
+ }
+
 
  extern "C" EXPORTDLL void *devirtualize(uint32_t vaddr) {
     return &current_host->mem.memory[vaddr];
