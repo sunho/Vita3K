@@ -16,6 +16,7 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #include "interface.h"
+#include "hook.h"
 
 #include <gui/functions.h>
 #include <host/functions.h>
@@ -638,6 +639,7 @@ ExitCode run_app(HostState &host, Ptr<const void> &entry_point) {
         LOG_INFO("Module {} (at \"{}\") module_start returned {}", module_name, module->path, log_hex(ret));
     }
 
+    current_host = &host;
     host.main_thread_id = main_thread_id;
 
     SceKernelThreadOptParam param{ 0, 0 };
